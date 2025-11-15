@@ -1,0 +1,42 @@
+﻿<Window x:Class="VisualGuhCode.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VisualGuhCode"
+        mc:Ignorable="d"
+        Title="VGC" Height="450" Width="800" AllowsTransparency="True" Background="#FF151515" WindowStyle="None" KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <local:FileTypeToIconConverter x:Key="FileTypeToIconConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TreeView x:Name="FolderTree" Foreground="White" Background="#28282B" RenderTransformOrigin="0.5,0.5" MouseDoubleClick="FolderTree_MouseDoubleClick" Margin="0,0,594,10" TreeViewItem.Expanded="FolderTree_Expanded">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type local:FileSystemItem}" ItemsSource="{Binding SubItems}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource FileTypeToIconConverter}}"/>
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White"/>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+            <TreeView.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform AngleY="0" AngleX="0"/>
+                    <RotateTransform Angle="0"/>
+                    <TranslateTransform Y="0" X="0"/>
+                </TransformGroup>
+            </TreeView.RenderTransform>
+        </TreeView>
+        <RichTextBox x:Name="CodeBox" HorizontalAlignment="Left" Margin="209,0,0,0" VerticalAlignment="Top" Width="581" Height="440" Background="#28282B" Opacity="0.5" Foreground="White" TextChanged="CodeBox_TextChanged" Grid.RowSpan="2"/>
+        <Grid x:Name="CommandPalette" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Opacity="1">
+            <Rectangle x:Name="CmdPltBkg" HorizontalAlignment="Center" Height="59" VerticalAlignment="Top" Width="506" Fill="#FF444444" RadiusX="5" RadiusY="5"/>
+            <TextBlock x:Name="CmdPltName" HorizontalAlignment="Center" Margin="0,5,0,0" TextWrapping="Wrap" Text="Command Palette" Width="498" Foreground="White" VerticalAlignment="Top" TextAlignment="Center"/>
+            <TextBox x:Name="CmdPlt" HorizontalAlignment="Center" Margin="0,25,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="496" Height="29" Background="#FF1F1F1F" BorderBrush="{x:Null}" Foreground="White" Panel.ZIndex="1" TextChanged="CmdPlt_TextChanged" KeyDown="CmdPlt_KeyDown"/>
+        </Grid>
+    </Grid>
+</Window>
