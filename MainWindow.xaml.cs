@@ -79,7 +79,8 @@ namespace VisualGuhCode
                 {
                     Name = System.IO.Path.GetFileName(file),
                     FullPath = file,
-                    isFolder = false
+                    isFolder = false,
+                    Extension = System.IO.Path.GetExtension(file)
                 });
             }
 
@@ -113,6 +114,7 @@ namespace VisualGuhCode
                     Name = System.IO.Path.GetFileName(file),
                     FullPath = file,
                     isFolder = false,
+                    Extension = System.IO.Path.GetExtension(file)
                 });
             }
 
