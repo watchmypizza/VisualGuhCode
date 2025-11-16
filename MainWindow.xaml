@@ -18,12 +18,24 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="215*"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="NavBar" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" MouseLeftButtonDown="NavBar_MouseLeftButtonDown" Panel.ZIndex="2">
-            <StackPanel Orientation="Horizontal" Margin="695,0,0,0">
+        <Grid x:Name="NavBar" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" MouseLeftButtonDown="NavBar_MouseLeftButtonDown" Panel.ZIndex="2" Width="800" Height="30">
+            <StackPanel x:Name="NavBarButtons" Orientation="Horizontal" Margin="695,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Button Background="#28282B" x:Name="btnMaximize" Content="🗕" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Minimize_MouseLeftButtonDown"></Button>
                 <Button Background="#28282B" x:Name="btnMinimize" Content="🗖" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Maximize_MouseLeftButtonDown"></Button>
                 <Button Background="#28282B" x:Name="btnClose" Content="⨉" Width="30" Margin="0, 0, 5, 0" Foreground="Red" Height="25" BorderBrush="Transparent" Click="Close_MouseLeftButtonDown"></Button>
             </StackPanel>
+        </Grid>
+        <Grid x:Name="MenuItemBar" VerticalAlignment="Top" Margin="10, 10, 0, 0" HorizontalAlignment="Left" Background="Transparent">
+            <Menu Background="Transparent" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Height="29">
+                <MenuItem Header="VisualGuhCode">
+                    <MenuItem Header="Quit" Click="MenuBar_Quit_Click" Background="#28282B" BorderBrush="Transparent"/>
+                </MenuItem>
+                <MenuItem Header="File">
+                    <MenuItem Header="Save" Click="MenuBar_File_Save" Background="#28282B" BorderBrush="Transparent"/>
+                    <MenuItem Header="Save As..." Click="MenuBar_File_SaveAs" Background="#28282B" BorderBrush="Transparent"/>
+                    <MenuItem Header="New File" Click="MenuBar_File_NewFile" Background="#28282B" BorderBrush="Transparent"/>
+                </MenuItem>
+            </Menu>
         </Grid>
         <Grid x:Name="TreeViewFolderThingy" Margin="0,29,593,0" Width="207" HorizontalAlignment="Left" Grid.RowSpan="2">
             <TreeView x:Name="FolderTree" Foreground="White" Background="#28282B" RenderTransformOrigin="0.5,0.5" MouseDoubleClick="FolderTree_MouseDoubleClick" TreeViewItem.Expanded="FolderTree_Expanded" Grid.Row="1">
@@ -45,7 +57,13 @@
                 </TreeView.RenderTransform>
             </TreeView>
         </Grid>
-        <Grid x:Name="RTBStretchFix" Opacity="1" Background="Transparent" Margin="210,29,0,0" Grid.RowSpan="2">
+        <Grid x:Name="FileTabs" Opacity="1" Background="Transparent" Margin="210,1,0,0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="590" Height="18">
+            <Rectangle x:Name="Tab" Width="100" HorizontalAlignment="Left" Fill="#27272B" RadiusX="5" RadiusY="5" Height="25" MouseLeftButtonDown="TabClick" Tag="Path"></Rectangle>
+            <TextBlock x:Name="TabName" Text="Template" Foreground="White" Width="100" HorizontalAlignment="Left" TextAlignment="Center"></TextBlock>
+            <Rectangle x:Name="NewTab" Width="15" HorizontalAlignment="Left" Fill="#27272B" RadiusX="50" RadiusY="50" MouseLeftButtonDown="newTab" Margin="103,2,0,2"/>
+            <TextBlock x:Name="NewTabText" Width="15" FontSize="10" TextAlignment="Center" HorizontalAlignment="Left" Text="+" Margin="103,2,0,2" Foreground="White" MouseLeftButtonDown="newTab"/>
+        </Grid>
+        <Grid x:Name="CodeBoxGrid" Opacity="1" Background="Transparent" Margin="207,19,0,0" Grid.Row="1">
             <RichTextBox x:Name="CodeBox"
                      Background="#28282B"
                      Opacity="0.5"

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -30,6 +31,7 @@ namespace VisualGuhCode
             InitializeComponent();
             this.ContentRendered += Window_ContentRendered;
             CommandPalette.Opacity = 0;
+            TabName.Text = "New Tab";
 
             var OpenDirectorySelectorOnLaunch = new OpenFolderDialog();
             OpenDirectorySelectorOnLaunch.Title = "Open Project location";
@@ -37,7 +39,14 @@ namespace VisualGuhCode
             OpenDirectorySelectorOnLaunch.Multiselect = false;
             OpenDirectorySelectorOnLaunch.ShowDialog();
 
-            _fileSystemResult.currentDir = OpenDirectorySelectorOnLaunch.FolderName;
+            try
+            {
+                _fileSystemResult.currentDir = OpenDirectorySelectorOnLaunch.FolderName;
+                Directory.SetCurrentDirectory(OpenDirectorySelectorOnLaunch.FolderName);
+            } catch (Exception e)
+            {
+                _fileSystemResult.currentDir = Directory.GetCurrentDirectory();
+            }
         }
 
         public class FileSystemResult
@@ -56,6 +65,8 @@ namespace VisualGuhCode
             public string currentDir;
 
             public bool isLoaded {  get; set; } = false;
+
+            public int tabCount;
         }
 
         private List<FileSystemItem> LoadTopLevel(string path)
@@ -255,10 +266,12 @@ namespace VisualGuhCode
                 CodeBox.Document.Blocks.Clear();
                 CodeBox.Document.Blocks.Add(new Paragraph(new Run(text)));
                 CodeBox.Focus();
+
+                AddNewTab(newPath);
             } catch (System.IO.IOException ex)
             {
                 MessageBox.Show(
-                    Title=$"The file you want to open may contain a virus (or something went wrong opening the file). View error below.\n{ex}",
+                    Title = $"The file you want to open may contain a virus (or something went wrong opening the file). View error below.\n{ex}",
                     "Error",
                     MessageBoxButton.OKCancel,
                     MessageBoxImage.Error);
@@ -270,6 +283,8 @@ namespace VisualGuhCode
                     CodeBox.Document.Blocks.Clear();
                     CodeBox.Document.Blocks.Add(new Paragraph(new Run(text)));
                     CodeBox.Focus();
+
+                    AddNewTab(newPath);
                 };
             }
         }
@@ -361,6 +376,7 @@ namespace VisualGuhCode
                 folderOpenDialog.Multiselect = false;
                 folderOpenDialog.RootDirectory = System.Environment.SpecialFolder.UserProfile.ToString();
                 folderOpenDialog.ShowDialog();
+                Directory.SetCurrentDirectory(folderOpenDialog.FolderName);
 
                 FolderTree.ItemsSource = null;
                 var rootItems = LoadTopLevel(folderOpenDialog.FolderName);
@@ -385,6 +401,22 @@ namespace VisualGuhCode
             foreach (var c in charToRem)
             {
                 text = text.Replace(c, string.Empty);
+            }
+
+            if (text.Contains("./"))
+            {
+                if (text.Contains('~'))
+                {
+                    return;
+                }
+                text = text.Replace("./", $"{Directory.GetCurrentDirectory()}\\");
+            }
+
+            if (text.Contains('~'))
+            {
+                System.Diagnostics.Debug.WriteLine("Text contains ~");
+                text = text.Replace("~", System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ""));
+                System.Diagnostics.Debug.WriteLine(text);
             }
 
             if (e.Key == Key.Enter)
@@ -452,6 +484,154 @@ namespace VisualGuhCode
         private void NavBar_MouseLeftButtonDown(object sender, RoutedEventArgs e)
         {
             DragMove();
+        }
+
+        private void MenuBar_Quit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void MenuBar_File_Save(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuBar_File_SaveAs(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MenuBar_File_NewFile(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void AddNewTab(string filePath)
+        {
+            int existingTabs = FileTabs.Children.OfType<Rectangle>()
+                                  .Count(r => r != NewTab && r != Tab);
+
+            if (_fileSystemResult.tabCount >= 6)
+            {
+                NewTab.Opacity = 0;
+                NewTabText.Opacity = 0;
+                return;
+            }
+
+            double newLeft = existingTabs * 105;
+
+            var newTabRect = new Rectangle
+            {
+                Width = 100,
+                Height = 25,
+                Fill = (Brush)new BrushConverter().ConvertFromString("#27272B"),
+                RadiusX = 5,
+                RadiusY = 5,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(newLeft, 1, 0, 0),
+                Tag = filePath
+            };
+            newTabRect.MouseLeftButtonDown += TabClick;
+
+            var newTabText = new TextBlock
+            {
+                Text = $"Tab {existingTabs + 1}",
+                Width = 100,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(newLeft, 1, 0, 0),
+                Tag = filePath
+            };
+            newTabText.MouseLeftButtonDown += TabClick;
+
+            double plusLeft = (existingTabs + 1) * 105;
+
+            NewTab.Margin = new Thickness(plusLeft, NewTab.Margin.Top, 0, 0);
+            NewTabText.Margin = new Thickness(plusLeft, NewTabText.Margin.Top, 0, 0);
+
+            FileTabs.Children.Add(newTabRect);
+            FileTabs.Children.Add(newTabText);
+
+            _fileSystemResult.tabCount++;
+        }
+
+        private void TabClick(object sender, MouseButtonEventArgs e)
+        {
+            string filePath = null;
+
+            if (sender is Rectangle rect && rect.Tag is string rectPath)
+            {
+                filePath = rectPath;
+            }
+            else if (sender is TextBlock txt && txt.Tag is string txtPath)
+            {
+                filePath = txtPath;
+            }
+            else
+            {
+                Debug.WriteLine("Clicked unknown sender type");
+                return;
+            }
+
+            if (filePath == null || !File.Exists(filePath))
+            {
+                Debug.WriteLine($"Invalid path: {filePath}");
+                return;
+            }
+
+            string fileContents = File.ReadAllText(filePath);
+            CodeBox.Document.Blocks.Clear();
+            CodeBox.Document.Blocks.Add(new Paragraph(new Run(fileContents)));
+            _fileSystemResult.curPath = filePath;
+        }
+
+        private void newTab(object sender, MouseButtonEventArgs e)
+        {
+
+            _fileSystemResult.tabCount++;
+
+            if (_fileSystemResult.tabCount >= 6)
+            {
+                NewTab.Opacity = 0;
+                NewTabText.Opacity = 0;
+                return;
+            }
+
+            int existingTabs = FileTabs.Children.OfType<Rectangle>()
+                              .Count(r => r != NewTab && r != Tab);
+
+            double newLeft = existingTabs * 105;
+
+            var newTabRect = new Rectangle
+            {
+                Width = 100,
+                Height = 25,
+                Fill = (Brush)new BrushConverter().ConvertFromString("#27272B"),
+                RadiusX = 5,
+                RadiusY = 5,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(newLeft, 1, 0, 0),
+                Tag = _fileSystemResult.curPath,
+            };
+            newTabRect.MouseLeftButtonDown += TabClick;
+
+            var newTabText = new TextBlock
+            {
+                Text = $"Tab {existingTabs + 1}",
+                Width = 100,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(newLeft, 1, 0, 0)
+            };
+
+            double plusLeft = (existingTabs + 1) * 105;
+
+            NewTab.Margin = new Thickness(plusLeft, NewTab.Margin.Top, 0, 0);
+            NewTabText.Margin = new Thickness(plusLeft, NewTabText.Margin.Top, 0, 0);
+
+            FileTabs.Children.Add(newTabRect);
+            FileTabs.Children.Add(newTabText);
         }
     }
 }
