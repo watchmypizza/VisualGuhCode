@@ -6,6 +6,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VisualGuhCode"
         mc:Ignorable="d"
+        MinWidth="800"
+        MinHeight="450"
         ResizeMode="CanResizeWithGrip"
         Title="VGC" Height="450" Width="800" AllowsTransparency="True" Background="#FF151515" WindowStyle="None" KeyDown="Window_KeyDown" MouseLeftButtonDown="Window_MouseLeftButtonDown">
     <Window.Resources>
