@@ -16,39 +16,42 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="215*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="695,0,0,0">
-            <Button Background="#28282B" x:Name="btnMaximize" Content="🗕" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Minimize_MouseLeftButtonDown"></Button>
-            <Button Background="#28282B" x:Name="btnMinimize" Content="🗖" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Maximize_MouseLeftButtonDown"></Button>
-            <Button Background="#28282B" x:Name="btnClose" Content="⨉" Width="30" Margin="0, 0, 5, 0" Foreground="Red" Height="25" BorderBrush="Transparent" Click="Close_MouseLeftButtonDown"></Button>
-        </StackPanel>
-        <TreeView x:Name="FolderTree" Foreground="White" Background="#28282B" RenderTransformOrigin="0.5,0.5" MouseDoubleClick="FolderTree_MouseDoubleClick" Margin="0,0,594,10" TreeViewItem.Expanded="FolderTree_Expanded" Grid.Row="1">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type local:FileSystemItem}" ItemsSource="{Binding SubItems}">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Width="16" Height="16" Source="{Binding Converter={StaticResource FileTypeToIconConverter}}"/>
-                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White"/>
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-            <TreeView.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform AngleY="0" AngleX="0"/>
-                    <RotateTransform Angle="0"/>
-                    <TranslateTransform Y="0" X="0"/>
-                </TransformGroup>
-            </TreeView.RenderTransform>
-        </TreeView>
-        <RichTextBox x:Name="CodeBox"
-                     Margin="211,29,10,10"
+        <Grid x:Name="NavBar" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Margin="695,0,0,0">
+                <Button Background="#28282B" x:Name="btnMaximize" Content="🗕" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Minimize_MouseLeftButtonDown"></Button>
+                <Button Background="#28282B" x:Name="btnMinimize" Content="🗖" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Maximize_MouseLeftButtonDown"></Button>
+                <Button Background="#28282B" x:Name="btnClose" Content="⨉" Width="30" Margin="0, 0, 5, 0" Foreground="Red" Height="25" BorderBrush="Transparent" Click="Close_MouseLeftButtonDown"></Button>
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="TreeViewFolderThingy" Margin="0,29,593,0" Width="207" HorizontalAlignment="Left" Grid.RowSpan="2">
+            <TreeView x:Name="FolderTree" Foreground="White" Background="#28282B" RenderTransformOrigin="0.5,0.5" MouseDoubleClick="FolderTree_MouseDoubleClick" TreeViewItem.Expanded="FolderTree_Expanded" Grid.Row="1">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type local:FileSystemItem}" ItemsSource="{Binding SubItems}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="16" Height="16" Source="{Binding Converter={StaticResource FileTypeToIconConverter}}"/>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+                <TreeView.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform AngleY="0" AngleX="0"/>
+                        <RotateTransform Angle="0"/>
+                        <TranslateTransform Y="0" X="0"/>
+                    </TransformGroup>
+                </TreeView.RenderTransform>
+            </TreeView>
+        </Grid>
+        <Grid x:Name="RTBStretchFix" Opacity="1" Margin="210,29,0,0" Grid.RowSpan="2">
+            <RichTextBox x:Name="CodeBox"
                      Background="#28282B"
                      Opacity="0.5"
                      Foreground="White"
                      TextChanged="CodeBox_TextChanged"
-                     VerticalAlignment="Stretch"
-                     HorizontalAlignment="Stretch"
-                     Grid.RowSpan="2"/>
-        <Grid x:Name="CommandPalette" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Opacity="1" Height="59" Width="506" Grid.Row="1">
+                     HorizontalAlignment="Center"/>
+        </Grid>
+        <Grid x:Name="CommandPalette" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Opacity="0" Height="59" Width="506" Grid.Row="1">
             <Rectangle x:Name="CmdPltBkg" HorizontalAlignment="Center" Height="59" VerticalAlignment="Top" Width="506" Fill="#FF444444" RadiusX="5" RadiusY="5"/>
             <TextBlock x:Name="CmdPltName" HorizontalAlignment="Center" Margin="0,5,0,0" TextWrapping="Wrap" Text="Command Palette" Width="498" Foreground="White" VerticalAlignment="Top" TextAlignment="Center"/>
             <TextBox x:Name="CmdPlt" HorizontalAlignment="Center" Margin="0,25,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="496" Height="29" Background="#FF1F1F1F" BorderBrush="{x:Null}" Foreground="White" Panel.ZIndex="1" TextChanged="CmdPlt_TextChanged" KeyDown="CmdPlt_KeyDown"/>
