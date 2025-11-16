@@ -16,7 +16,7 @@
             <RowDefinition Height="15*"/>
             <RowDefinition Height="215*"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="NavBar" VerticalAlignment="Top" HorizontalAlignment="Right">
+        <Grid x:Name="NavBar" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" MouseLeftButtonDown="NavBar_MouseLeftButtonDown" Panel.ZIndex="2">
             <StackPanel Orientation="Horizontal" Margin="695,0,0,0">
                 <Button Background="#28282B" x:Name="btnMaximize" Content="🗕" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Minimize_MouseLeftButtonDown"></Button>
                 <Button Background="#28282B" x:Name="btnMinimize" Content="🗖" Width="30" Margin="0, 0, 5, 0" BorderBrush="Transparent" Foreground="Red" Height="25" Click="Maximize_MouseLeftButtonDown"></Button>

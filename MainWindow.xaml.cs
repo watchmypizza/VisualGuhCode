@@ -435,5 +435,10 @@ namespace VisualGuhCode
                 WindowState = WindowState.Maximized;
             }
         }
+
+        private void NavBar_MouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+            DragMove();
+        }
     }
 }
