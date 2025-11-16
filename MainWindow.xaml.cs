@@ -354,6 +354,19 @@ namespace VisualGuhCode
                 }
             }
 
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.O)
+            {
+                var folderOpenDialog = new OpenFolderDialog();
+                folderOpenDialog.Title = "Open Folder";
+                folderOpenDialog.Multiselect = false;
+                folderOpenDialog.RootDirectory = System.Environment.SpecialFolder.UserProfile.ToString();
+                folderOpenDialog.ShowDialog();
+
+                FolderTree.ItemsSource = null;
+                var rootItems = LoadTopLevel(folderOpenDialog.FolderName);
+                FolderTree.ItemsSource = rootItems;
+            }
+
             if (e.Key == Key.Escape)
             {
                 if (_fileSystemResult.CmdPltEnabled)
