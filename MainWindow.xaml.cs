@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -67,6 +68,8 @@ namespace VisualGuhCode
             public bool isLoaded {  get; set; } = false;
 
             public int tabCount;
+
+            public bool isSaved = true;
         }
 
         private List<FileSystemItem> LoadTopLevel(string path)
@@ -252,6 +255,20 @@ namespace VisualGuhCode
             if (newPath == null)
                 return;
 
+            if (!_fileSystemResult.isSaved)
+            {
+                var msg = MessageBox.Show(
+                    Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                    "Info",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (msg != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+                _fileSystemResult.isSaved = true;
+            }
+
             // save previous file
             SaveCurrentFile();
 
@@ -318,6 +335,20 @@ namespace VisualGuhCode
         {
             if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S)
             {
+                if (!_fileSystemResult.isSaved)
+                {
+                    var fileSavingDialog = new SaveFileDialog();
+                    fileSavingDialog.Title = "Save file";
+                    fileSavingDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                    fileSavingDialog.ShowDialog();
+                    using (var writer = new StreamWriter(fileSavingDialog.FileName))
+                    {
+                        var CBT = new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd);
+                        writer.Write(CBT.Text);
+                        _fileSystemResult.isSaved = true;
+                        return;
+                    }
+                }
                 SaveCurrentFile();
             }
 
@@ -392,6 +423,27 @@ namespace VisualGuhCode
                     CodeBox.Focus();
                 }
             }
+
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.N)
+            {
+                if (!_fileSystemResult.isSaved)
+                {
+                    var msg = MessageBox.Show(
+                        Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                        "Info",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    if (msg != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+                }
+                CodeBox.Document.Blocks.Clear();
+                _fileSystemResult.curPath = null;
+                _fileSystemResult.isSaved = false;
+            }
+
+            _fileSystemResult.CmdPltEnabled = false;
         }
 
         private void CmdPlt_KeyDown(object sender, KeyEventArgs e)
@@ -424,6 +476,21 @@ namespace VisualGuhCode
                 
                 if (Directory.Exists(text))
                 {
+                    if (!_fileSystemResult.isSaved)
+                    {
+                        var msg = MessageBox.Show(
+                            Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                            "Info",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+                        if (msg != MessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+
+                        _fileSystemResult.isSaved = true;
+                    }
+
                     FolderTree.ItemsSource = null;
                     Directory.SetCurrentDirectory(text);
                     var newDir = System.IO.Path.GetFullPath(text);
@@ -438,6 +505,20 @@ namespace VisualGuhCode
 
                 if (File.Exists(text))
                 {
+                    if (!_fileSystemResult.isSaved)
+                    {
+                        var msg = MessageBox.Show(
+                            Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                            "Info",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+                        if (msg != MessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+                    }
+
+                    _fileSystemResult.isSaved = true;
                     var CBT = File.ReadAllText(text);
 
                     CodeBox.Document.Blocks.Clear();
@@ -446,8 +527,6 @@ namespace VisualGuhCode
                     CodeBox.Focus();
                 }
             }
-
-            _fileSystemResult.CmdPltEnabled = false;
         }
 
         private void CmdPlt_TextChanged(object sender, TextChangedEventArgs e)
@@ -559,6 +638,20 @@ namespace VisualGuhCode
         {
             string filePath = null;
 
+            if (!_fileSystemResult.isSaved)
+            {
+                var msg = MessageBox.Show(
+                    Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                    "Info",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (msg != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+                _fileSystemResult.isSaved = true;
+            }
+
             if (sender is Rectangle rect && rect.Tag is string rectPath)
             {
                 filePath = rectPath;
@@ -597,41 +690,39 @@ namespace VisualGuhCode
                 return;
             }
 
-            int existingTabs = FileTabs.Children.OfType<Rectangle>()
-                              .Count(r => r != NewTab && r != Tab);
-
-            double newLeft = existingTabs * 105;
-
-            var newTabRect = new Rectangle
+            if (!_fileSystemResult.isSaved)
             {
-                Width = 100,
-                Height = 25,
-                Fill = (Brush)new BrushConverter().ConvertFromString("#27272B"),
-                RadiusX = 5,
-                RadiusY = 5,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Margin = new Thickness(newLeft, 1, 0, 0),
-                Tag = _fileSystemResult.curPath,
-            };
-            newTabRect.MouseLeftButtonDown += TabClick;
+                var msg = MessageBox.Show(
+                    Title = "You didn't save your file yet, your changes will be discarded.\nContinue?",
+                    "Info",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (msg != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+                _fileSystemResult.isSaved = true;
+            }
 
-            var newTabText = new TextBlock
+            var fileOpenDialog = new OpenFileDialog();
+            fileOpenDialog.Title = "Select a file to open";
+            fileOpenDialog.Multiselect = false;
+            fileOpenDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            fileOpenDialog.ShowDialog();
+
+            if (fileOpenDialog.FileName == null || fileOpenDialog.FileName == "")
             {
-                Text = $"Tab {existingTabs + 1}",
-                Width = 100,
-                Foreground = Brushes.White,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(newLeft, 1, 0, 0)
-            };
+                return;
+            }
 
-            double plusLeft = (existingTabs + 1) * 105;
+            AddNewTab(fileOpenDialog.FileName);
 
-            NewTab.Margin = new Thickness(plusLeft, NewTab.Margin.Top, 0, 0);
-            NewTabText.Margin = new Thickness(plusLeft, NewTabText.Margin.Top, 0, 0);
-
-            FileTabs.Children.Add(newTabRect);
-            FileTabs.Children.Add(newTabText);
+            using (var reader = new StreamReader(fileOpenDialog.FileName))
+            {
+                var text = reader.ReadToEnd();
+                CodeBox.Document.Blocks.Clear();
+                CodeBox.Document.Blocks.Add(new Paragraph(new Run(text)));
+            }
         }
     }
 }
