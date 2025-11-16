@@ -43,7 +43,7 @@
                 </TreeView.RenderTransform>
             </TreeView>
         </Grid>
-        <Grid x:Name="RTBStretchFix" Opacity="1" Margin="210,29,0,0" Grid.RowSpan="2">
+        <Grid x:Name="RTBStretchFix" Opacity="1" Background="Transparent" Margin="210,29,0,0" Grid.RowSpan="2">
             <RichTextBox x:Name="CodeBox"
                      Background="#28282B"
                      Opacity="0.5"
